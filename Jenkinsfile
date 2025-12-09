@@ -28,6 +28,11 @@ pipeline{
                 sh "docker run -d --name ${CONTAINER_NAME} -p 8082:8080 ${IMAGE_NAME}"
             }
         }
+        stage('test'){
+            steps{
+                sh "curl -f http://54.206.109.98:8082 || exit 1"
+            }
+        }
     }
     
 }
