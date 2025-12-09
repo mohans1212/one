@@ -30,7 +30,11 @@ pipeline{
         }
         stage('test'){
             steps{
-                sh "curl -f http://54.206.109.98:8082 || exit 1"
+                sh '''
+                sleep 20
+                curl -f http://54.206.109.98:8082 || exit 1
+                echo Connection established
+                '''
             }
         }
     }
