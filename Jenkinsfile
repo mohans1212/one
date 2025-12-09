@@ -1,8 +1,14 @@
 pipeline{
+    agent any
+    environment{
+        IMAGE_NAME = ${BUILD_TAG}:${BUILD_ID}
+        CONTAINER_NAME = tomcat_service
+    }
+
     stages{
         stage('Checkout'){
             steps{
-                checkout scm
+                git branch:'master',url:'https://github.com/mohans1212/one'
             }
         }
         stage('Build') {
@@ -10,7 +16,11 @@ pipeline{
                 sh 'mvn clean package'
             }
         }
-        stage{}
+        stage('Image Creation'){
+            steps{
+                sh "docker build -t ${IMAGE_NAME}"
+            }
+        }
     }
     
 }
