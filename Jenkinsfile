@@ -21,6 +21,13 @@ pipeline{
                 sh "docker build -t ${IMAGE_NAME} ."
             }
         }
+        stage('Build Deploy'){
+            steps{
+                sh "docker stop ${CONTAINER_NAME} || true"
+                sh "docker rm ${CONTAINER_NAME} || true"
+                sh "docker run -d --name ${CONTAINER_NAME} -p 8081:8080 ${IMAGE_NAME}"
+            }
+        }
     }
     
 }
