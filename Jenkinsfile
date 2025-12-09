@@ -1,8 +1,8 @@
 pipeline{
     agent any
     environment{
-        IMAGE_NAME = ${BUILD_TAG}:${BUILD_ID}
-        CONTAINER_NAME = tomcat_service
+        IMAGE_NAME = "${BUILD_TAG}:${BUILD_ID}"
+        CONTAINER_NAME = "tomcat_service"
     }
 
     stages{
