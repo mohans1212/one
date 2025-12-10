@@ -1,31 +1,44 @@
 pipeline{
     agent any
     environment{
-        IMAGE = "${BUILD_TAG}:${BUILD_ID}"
-        CONTAINER_NAME = "tomcat"
+        IMAGE_NAME = "${BUILD_TAG}:${BUILD_ID}"
+        CONTAINER_NAME = "tomcat_service"
     }
+
     stages{
-        stage("Code"){
+        stage('Checkout'){
             steps{
-                git branch:'master', url:'https://github.com/mohans1212/one'
+                git branch:'master',url:'https://github.com/mohans1212/one'
             }
         }
-        stage("Build"){
-            steps{
-            sh "mvn clean package"
-            } 
-        }
-        stage("Image Build"){
-            steps{
-                sh "docker build -t ${IMAGE} ."
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
             }
         }
-        stage("Deploy Image"){
+        stage('Image Creation'){
             steps{
-            sh "docker stop ${CONTAINER_NAME} || true"
-            sh "docker rm ${CONTAINER_NAME} || true"
-            sh "docker run -d --name ${CONTAINER_NAME} -p 8082:8080 ${IMAGE}"
+                sh "docker build -t ${IMAGE_NAME} ."
+            }
+        }
+        stage('Build Deploy'){
+            steps{
+                sh "docker stop ${CONTAINER_NAME} || true"
+                sh "docker rm ${CONTAINER_NAME} || true"
+                sh "docker run -d --name ${CONTAINER_NAME} -p 8082:8080 ${IMAGE_NAME}"
+            }
+        }
+        stage('test'){
+            steps{
+                sh '''
+                sleep 20
+                curl -f http://3.25.230.247:8082 || exit 1
+                echo Connection established
+                '''
             }
         }
     }
+    
 }
+
+
