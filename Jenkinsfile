@@ -32,7 +32,7 @@ pipeline{
             steps{
                 sh '''
                 sleep 20
-                curl -f http://54.206.109.98:8082 || exit 1
+                curl -f http://3.25.230.247:8082 || exit 1
                 echo Connection established
                 '''
             }
@@ -40,4 +40,5 @@ pipeline{
     }
     
 }
+
 
