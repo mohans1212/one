@@ -41,7 +41,7 @@ pipeline{
         stage ('push image to hub'){
             steps{
                 sh 'docker tag ${BUILD_TAG}:${BUILD_ID} ${dockerhub}:${BUILD_TAG}'
-                sh 'docker push ${dockerhub}:${BUILD_TAG}'
+                sh 'docker push ${dockerhub}:${BUILD_TAG} || true'
             }
         }
     }
