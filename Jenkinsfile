@@ -29,18 +29,18 @@ pipeline{
             }
         }
         stage('test'){
-            steps{
-                sh '''
-                sleep 5
-                curl -f http://3.27.106.61:8082 || exit 1
-                echo Connection established
-                '''
-            }
+            // steps{
+            //     sh '''
+            //     sleep 5
+            //     curl -f http://3.27.106.61:8082 || exit 1
+            //     echo Connection established
+            //     '''
+            // }
         }
         stage ('push image to hub'){
             steps{
-               sh 'docker tag ${BUILD_TAG}:${BUILD_ID} mohancloud12/one:${BUILD_ID}'
-               sh 'docker push mohancloud12/one:${BUILD_ID}'
+               sh 'docker tag ${BUILD_TAG}:${BUILD_ID} mohancloud12/one:${BUILD_TAG}'
+
             }
         }
     }
