@@ -39,7 +39,7 @@ pipeline{
         }
         stage ('push image to hub'){
             steps{
-                docker tag ${IMAGE} mohancloud12/one:${BUILD_ID}
+               sh  'docker tag ${IMAGE} mohancloud12/one:${BUILD_ID}'
             }
         }
     }
