@@ -1,51 +1,53 @@
-pipeline{
-    agent any
-    environment{
-        IMAGE_NAME = "${BUILD_TAG}:${BUILD_ID}"
-        CONTAINER_NAME = "tomcat_service"
-        dockerhub = "mohancloud12/one"
+pipeline {
+  agent any
+  environment {
+    DOCKERHUB = "mohancloud12/one"
+    REGISTRY_CREDENTIAL = 'dockerpass'      // Jenkins credentialsId (username/password)
+    CONTAINER_NAME = "tomcat_service"
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { git branch: 'master', url: 'https://github.com/mohans1212/one' }
     }
 
-    stages{
-        stage('Checkout'){
-            steps{
-                git branch:'master',url:'https://github.com/mohans1212/one'
-            }
-        }
-        stage('Build') {
-            steps {
-                sh 'mvn clean package'
-            }
-        }
-        stage('Image Creation'){
-            steps{
-                sh "docker build -t ${IMAGE_NAME} ."
-            }
-        }
-        stage('Build Deploy'){
-            steps{
-                sh "docker stop ${CONTAINER_NAME} || true"
-                sh "docker rm ${CONTAINER_NAME} || true"
-                sh "docker run -d --name ${CONTAINER_NAME} -p 8082:8080 ${IMAGE_NAME}"
-            }
-        }
-        // stage('test'){
-        //     steps{
-        //         sh '''
-        //         sleep 5
-        //         curl -f http://3.27.106.61:8082 || exit 1
-        //         echo Connection established
-        //         '''
-        //     }
-        // }
-        stage ('push image to hub'){
-            steps{
-                sh 'docker tag ${BUILD_TAG}:${BUILD_ID} ${dockerhub}:${BUILD_TAG}'
-                sh 'docker push ${dockerhub}:${BUILD_TAG} || true'
-            }
-        }
+    stage('Build') {
+      steps { sh 'mvn clean package' }
     }
-    
+
+    stage('Build Image') {
+      steps {
+        script {
+          IMAGE_TAG = "${DOCKERHUB}:${BUILD_NUMBER}"
+          def img = docker.build(IMAGE_TAG)   // builds and returns image object
+          env.IMAGE_TAG = IMAGE_TAG
+          currentBuild.displayName = "#${BUILD_NUMBER}"
+        }
+      }
+    }
+
+    stage('Deploy (local)') {
+      steps {
+        sh """
+          docker stop ${CONTAINER_NAME} || true
+          docker rm ${CONTAINER_NAME} || true
+          docker run -d --name ${CONTAINER_NAME} -p 8082:8080 ${IMAGE_TAG}
+        """
+      }
+    }
+
+    // optional health-check stage here
+
+    stage('Push Docker Image') {
+      steps {
+        script {
+          docker.withRegistry('https://index.docker.io/v1/', REGISTRY_CREDENTIAL) {
+            def img = docker.image(env.IMAGE_TAG)
+            img.push()
+            img.push('latest')
+          }
+        }
+      }
+    }
+  }
 }
-
-
