@@ -3,6 +3,7 @@ pipeline{
     environment{
         IMAGE_NAME = "${BUILD_TAG}:${BUILD_ID}"
         CONTAINER_NAME = "tomcat_service"
+        dockerhub = "mohancloud12/one"
     }
 
     stages{
@@ -39,8 +40,8 @@ pipeline{
         // }
         stage ('push image to hub'){
             steps{
-               sh 'docker tag ${BUILD_TAG}:${BUILD_ID} mohancloud12/one:${BUILD_TAG}'
-
+                sh 'docker tag ${BUILD_TAG}:${BUILD_ID} ${dockerhub}:${BUILD_TAG}'
+                sh 'docker push ${dockerhub}:${BUILD_TAG}'
             }
         }
     }
